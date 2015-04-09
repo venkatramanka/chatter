@@ -1,0 +1,21 @@
+<div id="test">
+</div>
+<input type="text" id="test_msg"/>
+<input type="button" value="send" onclick="send_msg()"/>
+<script>
+var dispatcher = new WebSocketRails('localhost:3000/websocket');
+function send_msg(){
+  dispatcher.trigger('tasks.new_message', $('#test_msg').val());
+}
+
+channel = dispatcher.subscribe('msgs');
+channel.bind('new', function(msg) {
+  $('#test').html($('#test').html()+'Received & Sent back ' + msg);
+});
+// dispatcher.bind('tasks.create_success', function(msg) {
+//   $('#test').html($('#test').html()+'Received & Sent back ' + msg);
+// });
+$(window).on('beforeunload',function(){
+dispatcher.close();
+});
+</script>

@@ -1,0 +1,17 @@
+= Chatter
+
+This project rocks and uses MIT-LICENSE.
+
+Follow the steps to install and use Chatter in your Rails Application:
+
+1) Add `gem 'chatter'` to your gemfile and `bundle install`
+
+2) Enter `rails generate install chatter`
+   
+   This should generate two files `config/initializers/chatter_redis.rb` & `config/chatter_config.rb`
+
+2) Edit chatter_config.rb to specify your redis server details & the model to be accessed by chatter engine
+
+3) Add a method by the name `chatter_name` to the model you specify. The engine looks for this method to fetch the name of any user. 
+
+4) Add a current_user method to your application_controller, that returns the currently logged-in user object.

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chatter</title>
+  <%= stylesheet_link_tag    "chatter/application", :media => "all" %>
+  <%= javascript_include_tag "chatter/application" %>
+  <%= javascript_include_tag "chatter/faye" %>
+  <%= javascript_include_tag "chatter/shout_box" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+<%= yield %>
+
+</body>
+</html>

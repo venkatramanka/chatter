@@ -1,0 +1,57 @@
+<% require 'digest/sha1' %>
+<% key = YAML.load_file('config/chatter_config.yml')['chatter']['key'] %>
+<%= stylesheet_link_tag    "chatter/application", :media => "all" %>
+<%= javascript_include_tag "chatter/application" %>
+<%= javascript_include_tag "chatter/faye" %>
+<input type="hidden" id="user_id" value="<%=session[:user_id]%>"/>
+<ul class="list-inline horizontal-slide" id="chat_container">
+</ul>
+<div class="chat_friends_list">
+<div class="chat_header" onclick="$(this).next().slideToggle();">Friends</div>
+  <div class="toggle_chat">
+  	<% @users = YAML.load_file('config/chatter_config.yml')['chatter']['model'].constantize.all.reject{ |e| e.id == session[:user_id] } %>
+    <div class="friends_list">
+      <ul class="list-group friend-list-group">
+      <% @users.each do |user| %>
+        <a href="#"><li class="list-group-item chatter_friend" value="<%=user.id%>" onclick="openChatBoxFor(this);"><%=user.name%>
+          <% if $online_users.include? user.id %>
+            <span class='glyphicon glyphicon-user' style="color:green"></span>
+          <% end %>
+        </li></a>
+      <% end %>
+      </ul>
+    </div>
+    <div class="user_info">
+      <input name="search_friends" id="search_friends" type="text" placeholder="O~ Search..." maxlength="160" />
+    </div>
+  </div>
+</div>
+<script>
+
+var private_channel = dispatcher.subscribe("<%= Digest::SHA1.hexdigest key+'_'+session[:user_id].to_s%>");
+private_channel.bind('typing', function(msg){
+  msg = JSON.parse(msg);
+  if(msg["action"] == 'appendTyping')
+    appendTyping(msg["msg_from"]);
+  else
+    removeTyping(msg["msg_from"]);
+});
+private_channel.bind('new', function(msg) {
+  appendMessage(msg);
+});
+
+var public_channel = dispatcher.subscribe('online_offline');
+public_channel.bind('online_to_offline', function(data) {
+  $('.chatter_friend[value='+data+']').children().remove();
+});
+public_channel.bind('offline_to_online', function(data) {
+  target = $('.chatter_friend[value='+data+']')
+  if(target.length != 0){
+    target.append("<span class='glyphicon glyphicon-user' style='color:green'></span>");
+  }
+  else{
+    $('.friend-list-group').append('<a href="#"><li class="list-group-item chatter_friend" value="'+data+'" onclick="openChatBoxFor(this)">New User <span class="glyphicon glyphicon-user" style="color:green"></span></li></a>');
+  }
+});
+
+</script>
