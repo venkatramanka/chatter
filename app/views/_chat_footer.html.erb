@@ -9,14 +9,18 @@
 <div class="chat_friends_list">
 <div class="chat_header" onclick="$(this).next().slideToggle();">Friends</div>
   <div class="toggle_chat">
-  	<% @users = YAML.load_file('config/chatter_config.yml')['chatter']['model'].constantize.all.reject{ |e| e.id == session[:user_id] } %>
+  	<% @offline_users = YAML.load_file('config/chatter_config.yml')['chatter']['model'].constantize.all.reject{ |e| e.id == session[:user_id] } %>
+    <% @online_users = @offline_users.select{|user| $online_users.include? user.id} %>
+    <% @offline_users -= @online_users %>
     <div class="friends_list">
       <ul class="list-group friend-list-group">
-      <% @users.each do |user| %>
+      <% @online_users.each do |user| %>
         <a href="#"><li class="list-group-item chatter_friend" value="<%=user.id%>" onclick="openChatBoxFor(this);"><%=user.name%>
-          <% if $online_users.include? user.id %>
-            <span class='glyphicon glyphicon-user' style="color:green"></span>
-          <% end %>
+          <span class='glyphicon glyphicon-user' style="color:green"></span>
+        </li></a>
+      <% end %>
+      <% @offline_users.each do |user| %>
+        <a href="#"><li class="list-group-item chatter_friend" value="<%=user.id%>" onclick="openChatBoxFor(this);"><%=user.name%>
         </li></a>
       <% end %>
       </ul>
